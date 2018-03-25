@@ -38,6 +38,7 @@ public class TouchableWrapper extends FrameLayout {
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                Log.i("","up");
                 break;
         }
         return super.dispatchTouchEvent(ev);
