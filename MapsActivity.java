@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,6 +19,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,7 +34,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,TouchableWrapper.UpdateMapAfterUserInterection {
 
     private GoogleMap mMap;
-    Point center = new Point(720,2500);
+    Point center;
+    private ImageView mAnimAndroid;
+    int mWidth;
+    int mHeight;
 
     LocationManager locationManager;
 
@@ -68,6 +74,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mAnimAndroid = (ImageView) findViewById(R.id.anim);
+        Drawable drawable = mAnimAndroid.getDrawable();
+        if(drawable instanceof Animatable){
+            ((Animatable) drawable).start();
+        }
+
+        mWidth= this.getResources().getDisplayMetrics().widthPixels;
+        mHeight= this.getResources().getDisplayMetrics().heightPixels;
+        Log.i("dimensions",mWidth+" "+mHeight);
     }
 
 
@@ -85,7 +101,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         mMap.getUiSettings().setIndoorLevelPickerEnabled(false);
         mMap.getUiSettings().setAllGesturesEnabled(false);
-        mMap.setPadding(0,1500,0,0);
+        mMap.setPadding(0,mHeight/2,0,0);
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
@@ -109,10 +125,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
                 mMap.clear();
-               // mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location"));
+                // mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(userLocation));
-               // Projection projection = mMap.getProjection();
-               // center =projection.toScreenLocation(new LatLng(location.getLatitude(), location.getLongitude()));
+                Projection projection = mMap.getProjection();
+                center =projection.toScreenLocation(new LatLng(location.getLatitude(), location.getLongitude()));
                // Log.i("center", center.toString());
             }
 
@@ -149,13 +165,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
                 LatLng userLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-             //   Projection projection = mMap.getProjection();
+                Projection projection = mMap.getProjection();
 
-               // center =projection.toScreenLocation(userLocation);
+                center =projection.toScreenLocation(userLocation);
                 //Log.i("center", String.valueOf(center));
                 mMap.clear();
                // MarkerOptions marker = new MarkerOptions().position(userLocation).title("Your Location");
-               // mMap.addMarker(marker);
+                // mMap.addMarker(marker);
 
                 mMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.builder()
                         .target(userLocation)
